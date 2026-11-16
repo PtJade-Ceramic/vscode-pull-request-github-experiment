@@ -29,6 +29,11 @@ and that is what gets sent to GitHub as the issue title.
 
 **Expected:** `🐛[BUG] 请输入标题`.
 
+> Issues, wiki, projects and discussions are disabled on this repository on purpose, and pull
+> requests are limited to collaborators. That only affects step 3: the reproduction stops at the
+> local `NewIssue.md`, whose first line is exactly the string the extension would send as the
+> issue title.
+
 Control cases in the same folder:
 
 | Template                                                                  | Line 1 of `NewIssue.md`                     |        |
