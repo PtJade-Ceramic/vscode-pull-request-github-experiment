@@ -128,7 +128,7 @@ const body = /^---\r?\n[\s\S]*?\r?\n---\r?\n?([\s\S]*)$/.exec(template)?.[1];
 
 ## Related
 
-- [`#8277`](https://github.com/microsoft/vscode-pull-request-github/pull/8277) added `.yml`
-  issue form support via `js-yaml` (merged 2025-12) — `.yml` is unaffected by this bug.
-- [`#8263`](https://github.com/microsoft/vscode-pull-request-github/pull/8263) extended the
-  same regex path to `labels`/`assignees`.
+- microsoft/vscode-pull-request-github#9193 tracks this bug upstream.
+- microsoft/vscode-pull-request-github#8277 added `.yml` issue form support via `js-yaml`
+  (merged 2025-12) — `.yml` is unaffected by this bug.
+- microsoft/vscode-pull-request-github#8263 extended the same regex path to `labels`/`assignees`.
