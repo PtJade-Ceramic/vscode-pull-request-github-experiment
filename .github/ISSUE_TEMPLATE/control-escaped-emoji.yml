@@ -1,0 +1,10 @@
+name: "Control: YAML template with \U0001F41B escape"
+description: Control case for the \U escape bug (YAML issue form)
+title: "\U0001F41B[BUG] 请输入标题"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a `.yml` issue form. Unlike `.md` templates it is parsed with
+        js-yaml, so the `\U0001F41B` escape is decoded correctly.

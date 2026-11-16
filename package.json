@@ -1,0 +1,13 @@
+{
+	"name": "vscode-pull-request-github-experiment",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Reproduction: YAML escapes in .md issue-template frontmatter are not decoded by the GitHub Pull Requests extension",
+	"scripts": {
+		"scope": "node harness/scope.js",
+		"escapes": "node harness/escapes.js"
+	},
+	"dependencies": {
+		"js-yaml": "^4.1.0"
+	}
+}

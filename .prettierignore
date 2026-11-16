@@ -1,0 +1,4 @@
+node_modules/
+
+# Repro fixtures: keep byte-identical to the templates under test.
+.github/
