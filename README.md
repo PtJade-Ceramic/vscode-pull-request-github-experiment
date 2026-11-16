@@ -18,6 +18,15 @@ GitHub web parses the same file with a real YAML parser and shows `🐛[BUG] 请
 | Affected format           | `.md` templates only — `.yml` issue forms go through `js-yaml` and are fine |
 | Affected since            | at least `v0.80.0` (when issue templates were introduced)                   |
 
+## Feedback
+
+Issues are disabled to keep the repository spam-free; community feedback lives in Discussions:
+
+https://github.com/PtJade-Ceramic/vscode-pull-request-github-experiment/discussions/1
+
+If this bug hits your repository, reply there with the extension version, VS Code version, the
+`title:` line of your template and what line 1 of `NewIssue.md` contained.
+
 ## Reproduce in VS Code (no tooling required)
 
 1. Open this repository in VS Code with the **GitHub Pull Requests** extension installed.
@@ -29,10 +38,11 @@ and that is what gets sent to GitHub as the issue title.
 
 **Expected:** `🐛[BUG] 请输入标题`.
 
-> Issues, wiki, projects and discussions are disabled on this repository on purpose, and pull
-> requests are limited to collaborators. That only affects step 3: the reproduction stops at the
-> local `NewIssue.md`, whose first line is exactly the string the extension would send as the
-> issue title.
+> Issues, wiki and projects are disabled on this repository on purpose, and pull requests are
+> limited to collaborators. That only affects step 3: the reproduction stops at the local
+> `NewIssue.md`, whose first line is exactly the string the extension would send as the issue
+> title. Feedback is collected in
+> [Discussions](https://github.com/PtJade-Ceramic/vscode-pull-request-github-experiment/discussions/1).
 
 Control cases in the same folder:
 
