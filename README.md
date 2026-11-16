@@ -60,27 +60,45 @@ Formatting: Prettier is the default formatter for this repo (`.vscode/settings.j
 `npx prettier --write .` for everything.
 
 `harness/shipped-template-parser.js` re-implements the extension's
-`getDataFromTemplate()` (both the `js-yaml` path and the regex fallback) and the first line of
-`makeNewIssueFile()`'s template, so the output matches the shipped bundles.
+[`getDataFromTemplate()`](https://github.com/microsoft/vscode-pull-request-github/blob/1315a8985118afe1843b2fbb7765a71f1ae4e625/src/issues/issueFeatureRegistrar.ts#L1346-L1368)
+(both the `js-yaml` path and the regex fallback) and the first line of `makeNewIssueFile()`'s
+template, so the output matches the shipped bundles.
 
 ## Root cause
 
-`getDataFromTemplate()` first tries `yaml.load(<entire file>)`. For a Markdown template the
-frontmatter _plus_ the Markdown body is not a single YAML document, so that always throws
-(`expected a single document in the stream` / `bad indentation of a sequence entry`), and the
-code falls back to regexes that only strip surrounding quotes:
+[`getDataFromTemplate()`](https://github.com/microsoft/vscode-pull-request-github/blob/1315a8985118afe1843b2fbb7765a71f1ae4e625/src/issues/issueFeatureRegistrar.ts#L1346-L1368) in
+[`issueFeatureRegistrar.ts`](https://github.com/microsoft/vscode-pull-request-github/blob/1315a8985118afe1843b2fbb7765a71f1ae4e625/src/issues/issueFeatureRegistrar.ts)
+first tries `yaml.load(<entire file>)`. For a Markdown template the frontmatter _plus_ the Markdown
+body is not a single YAML document, so that always throws
+(`expected a single document in the stream` / `bad indentation of a sequence entry`), and the code
+falls back to regexes that only strip surrounding quotes:
+
+https://github.com/microsoft/vscode-pull-request-github/blob/1315a8985118afe1843b2fbb7765a71f1ae4e625/src/issues/issueFeatureRegistrar.ts#L1360-L1367
 
 ```ts
-// src/issues/issueFeatureRegistrar.ts:1360-1367
 const title = template.match(/title:\s*(.*)/)?.[1]?.replace(/^["']|["']$/g, '');
-const name  = template.match(/name:\s*(.*)/)?.[1]?.replace(/^["']|["']$/g, '');
+const name = template.match(/name:\s*(.*)/)?.[1]?.replace(/^["']|["']$/g, '');
 const about = template.match(/about:\s*(.*)/)?.[1]?.replace(/^["']|["']$/g, '');
-...
-const body  = template.match(/---([\s\S]*)---([\s\S]*)/)?.[2];
+const labelsMatch = template.match(/labels:\s*(.*)/)?.[1];
+const assigneesMatch = template.match(/assignees:\s*(.*)/)?.[1];
+const body = template.match(/---([\s\S]*)---([\s\S]*)/)?.[2];
 ```
 
 A regex cannot decode YAML escapes, so nothing is unescaped, and `makeNewIssueFile()` writes the
-string unchanged to line 1 of `NewIssue.md`.
+raw string to line 1 of `NewIssue.md`:
+
+https://github.com/microsoft/vscode-pull-request-github/blob/1315a8985118afe1843b2fbb7765a71f1ae4e625/src/issues/issueFeatureRegistrar.ts#L1160
+
+Line 1 is then used verbatim as the issue title:
+
+[`extractMetadataFromFile()`](https://github.com/microsoft/vscode-pull-request-github/blob/9934ff2d8d725b8023048a1d72b3bba0f985e157/src/issues/issueFile.ts#L172-L210) in
+[`issueFile.ts`](https://github.com/microsoft/vscode-pull-request-github/blob/9934ff2d8d725b8023048a1d72b3bba0f985e157/src/issues/issueFile.ts)
+
+https://github.com/microsoft/vscode-pull-request-github/blob/9934ff2d8d725b8023048a1d72b3bba0f985e157/src/issues/issueFile.ts#L210
+
+```ts
+const title = text.substring(0, indexOfEmptyLine);
+```
 
 It is not emoji-specific — **every** escape leaks, including plain ASCII (`\x41` stays `\x41`
 instead of becoming `A`), and the same code path also mishandles trailing quotes, single-quoted
@@ -89,7 +107,8 @@ values, inline `#` comments, empty values and bodies containing `---`.
 ## Suggested fix
 
 Parse just the frontmatter block with YAML, and take the body as "everything after the second
-`---`":
+`---`", inside
+[`getDataFromTemplate()`](https://github.com/microsoft/vscode-pull-request-github/blob/1315a8985118afe1843b2fbb7765a71f1ae4e625/src/issues/issueFeatureRegistrar.ts#L1346-L1368):
 
 ```ts
 const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(template)?.[1];
